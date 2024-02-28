@@ -11,17 +11,29 @@
 const int BTN_B_PIN = 15;
 const int BTN_PIN = 13;
 
-volatile int flagbtn_b=0;
-volatile int flagbtn_p=0;
+volatile bool flagbtn_b=false;
+volatile bool flagbtn_p=false;
 
 void btn_callback(uint gpio, uint32_t events) {
   if (events == 0x4 && gpio == BTN_B_PIN) { // fall edge
-    flagbtn_b=1;
+    flagbtn_b=true;
   }
   if (events == 0x4 && gpio == BTN_PIN) { // fall edge
-    flagbtn_p=1;
+    flagbtn_p=true;
   }
   
+}
+
+void gera_som(int buzzer_pin, int frequencia, int duracao) {
+    int periodo = 1000000 / frequencia; // Calcula o período em microssegundos
+    int metade_periodo = periodo/ 2;
+
+    for (int i = 0; i < (duracao / periodo); i++) {
+        gpio_put(buzzer_pin, 1);
+        sleep_us(metade_periodo); // Metade do período em alto
+        gpio_put(buzzer_pin, 0);
+        sleep_us(metade_periodo); // Metade do período em baixo
+    }
 }
 
 int main() {
@@ -35,17 +47,20 @@ int main() {
     gpio_set_dir(BTN_PIN, GPIO_IN);
     gpio_pull_up(BTN_PIN);
 
-    gpio_set_irq_enabled_with_callback( BTN_PIN_G, GPIO_IRQ_EDGE_RISE, true, &btn_callback);
+    gpio_set_irq_enabled_with_callback( BTN_B_PIN, GPIO_IRQ_EDGE_FALL, true, &btn_callback);
 
-    gpio_set_irq_enabled_with_callback( BTN_PIN_G, GPIO_IRQ_EDGE_RISE, true, &btn_callback);
+    gpio_set_irq_enabled_with_callback( BTN_PIN, GPIO_IRQ_EDGE_FALL, true, &btn_callback);
     
     
     while (true) {
-        if(fagbtn_b){
+        if(flagbtn_b){
             printf("clicou no azul");
+            flagbtn_b=false;
+
         }
-        if(fagbtn_p){
+        if(flagbtn_p){
             printf("clicou no preto");
+            flagbtn_p=false;
         }
     }
 }
