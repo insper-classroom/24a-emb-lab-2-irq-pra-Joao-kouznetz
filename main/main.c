@@ -37,6 +37,7 @@ void gera_som(int buzzer_pin, int frequencia, int duracao) {
 }
 
 int main() {
+  
     stdio_init_all();
     
     gpio_init(BTN_B_PIN);
